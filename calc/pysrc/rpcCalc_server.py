@@ -13,7 +13,7 @@ def divide(x, y):
     return x // y
 
 # A simple server with simple arithmetic functions
-server = SimpleXMLRPCServer(("localhost", 8000))
+server = SimpleXMLRPCServer(("0.0.0.0", 8000))
 print("Listening on port 8000...")
 #server.register_multicall_functions()
 server.register_function(add, 'add')
