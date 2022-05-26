@@ -16,3 +16,11 @@ class Transaction:
     # override the hash method
     def __hash__(self) -> int:
         return hash(frozenset(self.transaction_id))
+    
+    def __dict__(self):
+        return {
+            'transaction_id': self.transaction_id,
+            'challenge': self.challenge,
+            'seed': self.seed,
+            'winner': self.winner
+        }

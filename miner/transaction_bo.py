@@ -32,6 +32,7 @@ class TransactionBO:
     # return status of the transaction given by id or -1 if not found
     def get_transaction_status(self, transaction_id: int) -> TransactionStatus:
         transaction = self.transaction_dao.get_transaction(transaction_id)
+        print(transaction.__dict__())
         if transaction is None:
             return TransactionStatus.invalid_id
 

@@ -10,3 +10,10 @@ class SeedStatus:
     # override the str method
     def __str__(self) -> str:
         return "Status: " + str(self.status) + " Seed: " + str(self.seed) + " Challenge: " + str(self.challenge)
+
+    def __dict__(self):
+        return {
+            'status': self.status,
+            'seed': self.seed,
+            'challenge': self.challenge
+        }

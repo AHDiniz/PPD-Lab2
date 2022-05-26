@@ -8,3 +8,6 @@ class TransactionStatus(Enum):
     # override the str method
     def __str__(self) -> str:
         return "Transaction Status: " + str(self.value)
+
+    def __dict__(self):
+        return self.value

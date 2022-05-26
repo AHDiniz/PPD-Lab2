@@ -10,3 +10,6 @@ class SubmitStatus(Enum):
     # override the str method
     def __str__(self) -> str:
         return "Submit Status: " + str(self.value)
+    
+    def __dict__(self):
+        return self.value
