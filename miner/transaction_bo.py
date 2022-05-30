@@ -30,25 +30,24 @@ class TransactionBO:
         return transaction.challenge
 
     # return status of the transaction given by id or -1 if not found
-    def get_transaction_status(self, transaction_id: int) -> TransactionStatus:
+    def get_transaction_status(self, transaction_id: int) -> int:
         transaction = self.transaction_dao.get_transaction(transaction_id)
-        print(transaction.__dict__())
         if transaction is None:
-            return TransactionStatus.invalid_id
+            return TransactionStatus.invalid_id.value
 
         if transaction.seed is None:
-            return TransactionStatus.pendente
+            return TransactionStatus.pendente.value
 
-        return TransactionStatus.resolvido
+        return TransactionStatus.resolvido.value
 
     # submit a seed for the transaction given by id and return if it is valid or not, -1 if not found
-    def submit_challenge(self, transaction_id: int, seed: int, client_id: int) -> SubmitStatus:
+    def submit_challenge(self, transaction_id: int, seed: int, client_id: int) -> int:
         transaction = self.transaction_dao.get_transaction(transaction_id)
         if transaction is None:
-            return SubmitStatus.invalid_id
+            return SubmitStatus.invalid_id.value
 
         if transaction.seed is not None:
-            return SubmitStatus.ja_solucionado
+            return SubmitStatus.ja_solucionado.value
 
         hashed_seed = hashlib.sha1(
             seed.to_bytes(8, byteorder='big')).hexdigest()
@@ -57,13 +56,13 @@ class TransactionBO:
         # iterate over prefix characters to check if it is a valid seed
         for i in range(0, transaction.challenge):
             if prefix[i] != "0":
-                return SubmitStatus.invalido
+                return SubmitStatus.invalido.value
 
         # mark the transaction as solved and the winner, return valid
         transaction.seed = seed
         transaction.winner = client_id
         self.transaction_dao.create_transaction()
-        return SubmitStatus.valido
+        return SubmitStatus.valido.value
 
     # get the winner of the transaction given by id, 0 if no winner or -1 if not found
 

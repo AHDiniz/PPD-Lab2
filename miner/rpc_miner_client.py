@@ -19,7 +19,7 @@ if (n!=3):
 
 
 rpcServerAddr = "http://" + sys.argv[1] + ":" + sys.argv[2] + "/"
-proxy = xmlrpc.client.ServerProxy(rpcServerAddr)
+proxy = xmlrpc.client.ServerProxy(rpcServerAddr, allow_none=True)
 
 class Menu(Enum):
     TRANSACTION = 1
@@ -31,9 +31,6 @@ class Menu(Enum):
     EXIT = 99
 
 class MinerClient:
-    def __init__(self):
-        pass
-
     def run(self):
         while True:
             self.__show_menu()
@@ -118,34 +115,37 @@ MENU:
         return proxy.submitChallenge(transaction_id, seed, client_id)
 
     def mine(self) -> None:
-        transaction_id = self.get_transaction_id()
-        challenge = self.get_challenge(transaction_id)
-
-
-        # TODO: implementar o código para paralelizar o cálculo do seed
-        start = perf_counter()
-        seed = 0
-        # generate a random seed until it is valid
+        
         while (True):
-            seed = random.randint(0, 2000000000)
-            hashed_seed = hashlib.sha1(
-                seed.to_bytes(4, byteorder='big')).hexdigest()
-            prefix = hashed_seed[0:challenge]
+            print("Procurando transação...")
+            transaction_id = self.get_transaction_id()
+            challenge = self.get_challenge(transaction_id)
 
-            # iterate over prefix characters to check if it is a valid seed
-            for i in range(0, challenge):
-                if prefix[i] != "0":
+
+            # TODO: implementar o código para paralelizar o cálculo do seed
+            start = perf_counter()
+            seed = 0
+            # generate a random seed until it is valid
+            while (True):
+                seed = random.randint(0, 2000000000)
+                hashed_seed = hashlib.sha1(
+                    seed.to_bytes(8, byteorder='big')).hexdigest()
+                prefix = hashed_seed[0:challenge]
+
+                # iterate over prefix characters to check if it is a valid seed
+                for i in range(0, challenge):
+                    if prefix[i] != "0":
+                        break
+                else:
                     break
-            else:
-                break
 
-        end = perf_counter()
-        t = end-start
+            end = perf_counter()
+            t = end-start
 
-        result = self.__submit_challenge(
-            transaction_id, seed, 1)
+            result = self.__submit_challenge(
+                transaction_id, seed, 1)
 
-        print("Time to finish: {0:.4f}s, result: {1}, seed: ".format(t, result, self.get_seed(transaction_id)))
+            print("Time to finish: {0:.4f}s, result: {1}, seed: {2}".format(t, result, self.get_seed(transaction_id)))
 
 
 miner = MinerClient()
