@@ -2,12 +2,13 @@ from enum import Enum
 import hashlib
 import random
 import sys
+import xmlrpc.client
+import threading as thrd
+from multiprocessing import cpu_count
 from time import perf_counter
 from seed_status import SeedStatus
 from submit_status import SubmitStatus
 from transaction_status import TransactionStatus
-import xmlrpc.client
-import threading as thrd
 
 # Calcula total de argumentos
 n = len(sys.argv)
