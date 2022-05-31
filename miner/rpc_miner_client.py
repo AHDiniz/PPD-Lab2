@@ -7,7 +7,7 @@ from seed_status import SeedStatus
 from submit_status import SubmitStatus
 from transaction_status import TransactionStatus
 import xmlrpc.client
-
+import threading as thrd
 
 # Calcula total de argumentos
 n = len(sys.argv)
@@ -20,6 +20,40 @@ if (n!=3):
 
 rpcServerAddr = "http://" + sys.argv[1] + ":" + sys.argv[2] + "/"
 proxy = xmlrpc.client.ServerProxy(rpcServerAddr, allow_none=True)
+
+class SeedCalculator(thrd.Thread):
+    def __init__(self, challenge):
+        thrd.Thread.__init__(self)
+        self.__challenge = challenge
+        self.__seed = 0
+        self.__time_to_finish = 0
+    
+    @property
+    def seed(self):
+        return self.__seed
+    
+    @property
+    def time_to_finish(self):
+        return self.__time_to_finish
+
+    def run(self):
+        start = perf_counter()
+
+        while True:
+            self.__seed = random.randint(0, 2000000000)
+            hashed_seed = hashlib.sha1(self.__seed.to_bytes(8, byteorder='big')).hexdigest()
+            prefix = hashed_seed[0:self.__challenge]
+
+                # iterate over prefix characters to check if it is a valid seed
+            for i in range(0, self.__challenge):
+                if prefix[i] != "0":
+                    break
+            else:
+                break
+
+        end = perf_counter()
+
+        self.__time_to_finish = end - start
 
 class Menu(Enum):
     TRANSACTION = 1
