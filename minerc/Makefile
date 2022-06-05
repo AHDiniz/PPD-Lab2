@@ -8,8 +8,8 @@ SERVER = rpcMiner_server
 
 SOURCES_CLNT.c = 
 SOURCES_CLNT.h = 
-SOURCES_SVC.c = 
-SOURCES_SVC.h = 
+SOURCES_SVC.c = rpcMiner_bo.c rpcMiner_dao.c
+SOURCES_SVC.h = rpcMiner_bo.h rpcMiner_dao.h
 SOURCES.x = rpcMiner.x
 
 TARGETS_SVC.c = rpcMiner_svc.c rpcMiner_server.c rpcMiner_xdr.c 
@@ -21,7 +21,7 @@ OBJECTS_SVC = $(SOURCES_SVC.c:%.c=%.o) $(TARGETS_SVC.c:%.c=%.o)
 # Compiler flags 
 
 CFLAGS += -g 
-LDLIBS += -lnsl
+LDLIBS += -lnsl -lcrypto -lssl
 RPCGENFLAGS = 
 
 # Targets 

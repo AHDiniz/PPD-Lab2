@@ -6,10 +6,11 @@
 
 // implement functions from rpcMiner_bo.h
 
+int calculate_seed(int challenge, int seed);
+
 int get_transaction_id_bo()
 {
-    Transaction *currentTransaction = get_current_transaction();
-    return get_transaction_id_item(currentTransaction);
+    return get_current_transaction_id();
 }
 
 int get_challenge_bo(int transactionId)
@@ -108,4 +109,21 @@ int get_winner_bo(int transactionId)
     }
 
     return get_winner_item(transaction); // winner for the transaction
+}
+
+SeedResponse get_seed_bo(int transactionId)
+{
+    SeedResponse seedResponse;
+    Transaction *transaction = get_transaction_by_id(transactionId);
+
+    if (transaction == NULL)
+    {
+        seedResponse.status = -1; // transaction not found
+        return seedResponse;
+    }
+
+    seedResponse.seed = get_seed_item(transaction);
+    seedResponse.status = get_transaction_status_bo(transactionId);
+    seedResponse.challenge = get_challenge_item(transaction);
+    return seedResponse;
 }

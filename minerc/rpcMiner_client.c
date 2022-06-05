@@ -7,8 +7,6 @@
 #include "rpcMiner.h"
 #include <openssl/sha.h>
 
-#define TRUE 1
-#define FALSE 0
 int clientId = 0;
 
 int get_transaction_id_client(CLIENT *clnt);
@@ -17,6 +15,7 @@ int get_transaction_status_client(CLIENT *clnt, int transactionId);
 int submit_challenge_client(CLIENT *clnt, SubmitChallengeRequest *submitRequest);
 int get_winner_client(CLIENT *clnt, int transactionId);
 SeedResponse get_seed_client(CLIENT *clnt, int transactionId);
+int calculate_seed(int challenge, int seed);
 
 int get_transaction_id_client(CLIENT *clnt)
 {
@@ -130,7 +129,7 @@ void mine(CLIENT *clnt)
     submitRequest.seed = seed;
     submitRequest.clientId = clientId;
 
-    int result = submit_challenge_client(clnt, &challenge);
+    int result = submit_challenge_client(clnt, &submitRequest);
     if (result == -1)
     {
         printf("Não foi possível enviar o seed para o servidor");
@@ -161,6 +160,17 @@ int calculate_seed(int challenge, int seed)
     return 1; // valid seed
 }
 
+enum Menu
+{
+    TRANSACTION = 1,
+    CHALLENGE = 2,
+    STATUS = 3,
+    WINNER = 4,
+    RESULT = 5,
+    MINER = 6,
+    EXIT = 99
+};
+
 int main(int argc, char *argv[])
 {
     char *host;
@@ -178,8 +188,60 @@ int main(int argc, char *argv[])
         exit(1);
     }
     clientId = rand() % 100;
-    get_transaction_id_client(clnt);
-
+    while (TRUE)
+    {
+        int transactionId;
+        int menu;
+        printf("Menu:\n");
+        printf("[1] - Transação Atual\n");
+        printf("[2] - Desafio\n");
+        printf("[3] - Status\n");
+        printf("[4] - Vencedor\n");
+        printf("[5] - Resultado\n");
+        printf("[6] - Minerar\n");
+        printf("[99] - Sair\n");
+        scanf("%d", &menu);
+        switch (menu)
+        {
+        case TRANSACTION:
+            transactionId = get_transaction_id_client(clnt);
+            printf("Transaction ID: %d\n", transactionId);
+            break;
+        case CHALLENGE:
+            printf("Digite o ID da transação: ");
+            scanf("%d", &transactionId);
+            int challenge = get_challenge_client(clnt, transactionId);
+            printf("Challenge: %d\n", challenge);
+            break;
+        case STATUS:
+            printf("Digite o ID da transação: ");
+            scanf("%d", &transactionId);
+            int status = get_transaction_status_client(clnt, transactionId);
+            printf("Status: %d\n", status);
+            break;
+        case WINNER:
+            printf("Digite o ID da transação: ");
+            scanf("%d", &transactionId);
+            int winner = get_winner_client(clnt, transactionId);
+            printf("Winner: %s\n", winner == clientId ? "você venceu" : "adversário venceu");
+            break;
+        case RESULT:
+            printf("Digite o ID da transação: ");
+            scanf("%d", &transactionId);
+            SeedResponse seedResponse = get_seed_client(clnt, transactionId);
+            printf("Seed gerado: %d\n", seedResponse.seed);
+            printf("Status: %d\n", seedResponse.status);
+            printf("Challenge: %d\n", seedResponse.challenge);
+            break;
+        case MINER:
+            mine(clnt);
+            break;
+        case EXIT:
+            printf("Saindo...\n");
+            clnt_destroy(clnt);
+            exit(0);
+        }
+    }
     clnt_destroy(clnt);
     exit(0);
 }
