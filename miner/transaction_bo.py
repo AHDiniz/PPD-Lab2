@@ -1,4 +1,5 @@
 import hashlib
+from submit_request import SubmitRequest
 from seed_status import SeedStatus
 from submit_status import SubmitStatus
 from transaction_dao import TransactionDAO
@@ -41,7 +42,11 @@ class TransactionBO:
         return TransactionStatus.resolvido.value
 
     # submit a seed for the transaction given by id and return if it is valid or not, -1 if not found
-    def submit_challenge(self, transaction_id: int, seed: int, client_id: int) -> int:
+    def submit_challenge(self, submit_request: SubmitRequest) -> int:
+        
+        transaction_id: int = submit_request.transaction_id
+        seed: int = submit_request.seed
+        client_id: int  = submit_request.client_id
         transaction = self.transaction_dao.get_transaction(transaction_id)
         if transaction is None:
             return SubmitStatus.invalid_id.value

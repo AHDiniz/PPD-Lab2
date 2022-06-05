@@ -6,9 +6,8 @@ import xmlrpc.client
 import threading as thrd
 from multiprocessing import cpu_count
 from time import perf_counter
+from submit_request import SubmitRequest
 from seed_status import SeedStatus
-from submit_status import SubmitStatus
-from transaction_status import TransactionStatus
 
 # Calcula total de argumentos
 n = len(sys.argv)
@@ -118,7 +117,7 @@ MENU:
         else:
             return proxy.getChallenge(transaction_id)
 
-    def get_transaction_status(self, transaction_id: int = None) -> TransactionStatus:
+    def get_transaction_status(self, transaction_id: int = None) -> int:
         if (transaction_id is None):
             transaction_id = self.__input_transaction_id()
             status = proxy.getTransactionStatus(transaction_id)
@@ -145,9 +144,9 @@ MENU:
         else:
             return proxy.getSeed(transaction_id)
 
-    def __submit_challenge(self, transaction_id: int, seed: int, client_id: int) -> SubmitStatus:
+    def __submit_challenge(self, transaction_id: int, seed: int, client_id: int) -> int:
         print("Submitting challenge...")
-        return proxy.submitChallenge(transaction_id, seed, client_id)
+        return proxy.submitChallenge(SubmitRequest(transaction_id, seed, client_id))
 
     def mine(self) -> None:
         
