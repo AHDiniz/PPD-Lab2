@@ -121,12 +121,13 @@ MENU:
             transaction_id = self.get_transaction_id()
             challenge = self.get_challenge(transaction_id)
 
-
+            count = 0
             # TODO: implementar o código para paralelizar o cálculo do seed
             start = perf_counter()
             seed = 0
             # generate a random seed until it is valid
-            while (True):
+            while (count < 5000000):
+                count = count + 1
                 seed = random.randint(0, 2000000000)
                 hashed_seed = hashlib.sha1(
                     seed.to_bytes(8, byteorder='big')).hexdigest()
@@ -138,6 +139,9 @@ MENU:
                         break
                 else:
                     break
+            else:                
+                print("Não foi possível gerar um seed válido em 500000 tentativas")
+                continue
 
             end = perf_counter()
             t = end-start
