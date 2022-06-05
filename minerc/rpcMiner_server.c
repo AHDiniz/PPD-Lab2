@@ -5,75 +5,70 @@
  */
 
 #include "rpcMiner.h"
+#include "rpcMiner_bo.h"
 
-int *
-get_transaction_id_100_svc(void *argp, struct svc_req *rqstp)
+int *get_transaction_id_100_svc(void *argp, struct svc_req *rqstp)
 {
-	static int  result;
+    static int result;
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    /*
+     * insert server code here
+     */
+    result = get_transaction_id_bo();
+    return &result;
 }
 
-int *
-get_challenge_100_svc(int *argp, struct svc_req *rqstp)
+int *get_challenge_100_svc(int *argp, struct svc_req *rqstp)
 {
-	static int  result;
+    static int result;
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    /*
+     * insert server code here
+     */
+    result = get_challenge_bo(*argp);
+    return &result;
 }
 
-int *
-get_transaction_status_100_svc(int *argp, struct svc_req *rqstp)
+int *get_transaction_status_100_svc(int *argp, struct svc_req *rqstp)
 {
-	static int  result;
+    static int result;
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    /*
+     * insert server code here
+     */
+    result = get_transaction_status_bo(*argp);
+    return &result;
 }
 
-int *
-submit_challenge_100_svc(SubmitChallengeRequest *argp, struct svc_req *rqstp)
+int *submit_challenge_100_svc(SubmitChallengeRequest *argp, struct svc_req *rqstp)
 {
-	static int  result;
+    static int result;
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    /*
+     * insert server code here
+     */
+    result = submit_challenge_bo(argp);
+    return &result;
 }
 
-int *
-get_winner_100_svc(int *argp, struct svc_req *rqstp)
+int *get_winner_100_svc(int *argp, struct svc_req *rqstp)
 {
-	static int  result;
+    static int result;
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    /*
+     * insert server code here
+     */
+    result = get_winner_bo(*argp);
+    return &result;
 }
 
-SeedResponse *
-get_seed_100_svc(int *argp, struct svc_req *rqstp)
+SeedResponse *get_seed_100_svc(int *argp, struct svc_req *rqstp)
 {
-	static SeedResponse  result;
+    static SeedResponse result;
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    /*
+     * insert server code here
+     */
+    result = get_seed_bo(*argp);
+    return &result;
 }

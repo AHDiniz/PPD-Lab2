@@ -181,10 +181,10 @@ MENU:
             t = end-start
 
             result = self.__submit_challenge(
-                transaction_id, seed, 1)
+                transaction_id, seed, client_id)
 
             print("Time to finish: {0:.4f}s, result: {1}, seed: {2}".format(t, result, self.get_seed(transaction_id)))
 
-
+client_id = randint(0, 100)
 miner = MinerClient()
 miner.run()

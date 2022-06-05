@@ -5,73 +5,181 @@
  */
 
 #include "rpcMiner.h"
+#include <openssl/sha.h>
 
+#define TRUE 1
+#define FALSE 0
+int clientId = 0;
 
-void
-prog_100(char *host)
+int get_transaction_id_client(CLIENT *clnt);
+int get_challenge_client(CLIENT *clnt, int transactionId);
+int get_transaction_status_client(CLIENT *clnt, int transactionId);
+int submit_challenge_client(CLIENT *clnt, SubmitChallengeRequest *submitRequest);
+int get_winner_client(CLIENT *clnt, int transactionId);
+SeedResponse get_seed_client(CLIENT *clnt, int transactionId);
+
+int get_transaction_id_client(CLIENT *clnt)
 {
-	CLIENT *clnt;
-	int  *result_1;
-	char *get_transaction_id_100_arg;
-	int  *result_2;
-	int  get_challenge_100_arg;
-	int  *result_3;
-	int  get_transaction_status_100_arg;
-	int  *result_4;
-	SubmitChallengeRequest  submit_challenge_100_arg;
-	int  *result_5;
-	int  get_winner_100_arg;
-	SeedResponse  *result_6;
-	int  get_seed_100_arg;
 
-#ifndef	DEBUG
-	clnt = clnt_create (host, PROG, VERSAO, "udp");
-	if (clnt == NULL) {
-		clnt_pcreateerror (host);
-		exit (1);
-	}
-#endif	/* DEBUG */
+    int transactionId;
 
-	result_1 = get_transaction_id_100((void*)&get_transaction_id_100_arg, clnt);
-	if (result_1 == (int *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_2 = get_challenge_100(&get_challenge_100_arg, clnt);
-	if (result_2 == (int *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_3 = get_transaction_status_100(&get_transaction_status_100_arg, clnt);
-	if (result_3 == (int *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_4 = submit_challenge_100(&submit_challenge_100_arg, clnt);
-	if (result_4 == (int *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_5 = get_winner_100(&get_winner_100_arg, clnt);
-	if (result_5 == (int *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-	result_6 = get_seed_100(&get_seed_100_arg, clnt);
-	if (result_6 == (SeedResponse *) NULL) {
-		clnt_perror (clnt, "call failed");
-	}
-#ifndef	DEBUG
-	clnt_destroy (clnt);
-#endif	 /* DEBUG */
+    int *result = get_transaction_id_100(NULL, clnt);
+    if (result == (int *)NULL)
+    {
+        clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
+        exit(1);
+    }
+    return *result;
 }
 
-
-int
-main (int argc, char *argv[])
+int get_challenge_client(CLIENT *clnt, int transactionId)
 {
-	char *host;
+    int *result = get_challenge_100(&transactionId, clnt);
+    if (result == (int *)NULL)
+    {
+        clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
+        exit(1);
+    }
+    return *result;
+}
 
-	if (argc < 2) {
-		printf ("usage: %s server_host\n", argv[0]);
-		exit (1);
-	}
-	host = argv[1];
-	prog_100 (host);
-exit (0);
+int get_transaction_status_client(CLIENT *clnt, int transactionId)
+{
+    int *result = get_transaction_status_100(&transactionId, clnt);
+    if (result == (int *)NULL)
+    {
+        clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
+        exit(1);
+    }
+    return *result;
+}
+
+int submit_challenge_client(CLIENT *clnt, SubmitChallengeRequest *submitRequest)
+{
+    int *result = submit_challenge_100(submitRequest, clnt);
+    if (result == (int *)NULL)
+    {
+        clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
+        exit(1);
+    }
+    return *result;
+}
+
+int get_winner_client(CLIENT *clnt, int transactionId)
+{
+    int *result = get_winner_100(&transactionId, clnt);
+    if (result == (int *)NULL)
+    {
+        clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
+        exit(1);
+    }
+    return *result;
+}
+
+SeedResponse get_seed_client(CLIENT *clnt, int transactionId)
+{
+    SeedResponse *result = get_seed_100(&transactionId, clnt);
+    if (result == (SeedResponse *)NULL)
+    {
+        clnt_perror(clnt, "call failed");
+        clnt_destroy(clnt);
+        exit(1);
+    }
+    return *result;
+}
+
+void mine(CLIENT *clnt)
+{
+    int transactionId = get_transaction_id_client(clnt);
+    int challenge = get_challenge_client(clnt, transactionId);
+
+    printf("Transaction ID: %d\n", transactionId);
+
+    int count = 0;
+    int seed = 0;
+    int found = FALSE;
+    while (count < 5000000)
+    {
+        seed = rand() % 2000000000;
+        int result = calculate_seed(challenge, seed);
+        if (result == -1)
+        {
+            continue;
+        }
+        else
+        {
+            found = TRUE;
+            break;
+        }
+        count++;
+    }
+
+    if (!found)
+    {
+        printf("Não foi possível gerar um seed válido em 5000000 tentativas");
+        return;
+    }
+
+    SubmitChallengeRequest submitRequest;
+    submitRequest.transactionId = transactionId;
+    submitRequest.seed = seed;
+    submitRequest.clientId = clientId;
+
+    int result = submit_challenge_client(clnt, &challenge);
+    if (result == -1)
+    {
+        printf("Não foi possível enviar o seed para o servidor");
+        return;
+    }
+    SeedResponse seedResponse = get_seed_client(clnt, transactionId);
+    printf("Seed gerado: %d\n", seedResponse.seed);
+    printf("Status: %d\n", seedResponse.status);
+    int winner = get_winner_client(clnt, transactionId);
+    printf("Winner: %s\n", winner == clientId ? "você venceu" : "adversário venceu");
+}
+
+int calculate_seed(int challenge, int seed)
+{
+    char data[2000000000];
+    sprintf(data, "%d", seed);
+    size_t length = strlen(data);
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    SHA1(data, length, hash);
+    // hash now contains the 20-byte SHA-1 hash
+    for (int i = 0; i < challenge; i++)
+    {
+        if (hash[i] != '0')
+        {
+            return 0; // invalid seed
+        }
+    }
+    return 1; // valid seed
+}
+
+int main(int argc, char *argv[])
+{
+    char *host;
+
+    if (argc < 2)
+    {
+        printf("usage: %s server_host\n", argv[0]);
+        exit(1);
+    }
+    host = argv[1];
+    CLIENT *clnt = clnt_create(host, PROG, VERSAO, "udp");
+    if (clnt == NULL)
+    {
+        clnt_pcreateerror(host);
+        exit(1);
+    }
+    clientId = rand() % 100;
+    get_transaction_id_client(clnt);
+
+    clnt_destroy(clnt);
+    exit(0);
 }
