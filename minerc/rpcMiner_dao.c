@@ -9,12 +9,20 @@ struct transaction_struct
 };
 const MAX_TRANSACTIONS = 1000;
 Transaction trasactions[MAX_TRANSACTIONS];
-int nextTransactionId = 1;
+int nextTransactionId = 0;
 
 
 // implement functions from rpcMiner_dao.h
 int get_current_transaction_id()
 {
+    if (nextTransactionId >= MAX_TRANSACTIONS)
+    {
+        return -1; // no more transactions
+    }
+    if (nextTransactionId == 0)
+    {
+        create_transaction();
+    }
     return nextTransactionId - 1;
 }
 
@@ -22,7 +30,7 @@ Transaction *get_transaction_by_id(int transactionId);
 
 void create_transaction() {
     Transaction *transaction = &trasactions[nextTransactionId];
-    transaction->transactionId = get_current_transaction_id();
+    transaction->transactionId = nextTransactionId;
     transaction->challenge = rand() % 20;
     transaction->seed = -1;
     transaction->winner = -1;
