@@ -27,7 +27,7 @@ class TransactionBO:
         transaction: Transaction = self.transaction_dao.get_transaction(
             transaction_id)
         if transaction is None:
-            return self.invalid_id
+            return TransactionStatus.invalid_id.value
         return transaction.challenge
 
     # return status of the transaction given by id or -1 if not found
