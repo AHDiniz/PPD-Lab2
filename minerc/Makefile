@@ -3,8 +3,8 @@
 
 # Parameters
 
-CLIENT = rpcMiner_client
-SERVER = rpcMiner_server
+CLIENT = rpcMiner_client.out
+SERVER = rpcMiner_server.out
 
 SOURCES_CLNT.c = 
 SOURCES_CLNT.h = 

@@ -144,7 +144,7 @@ void mine(CLIENT *clnt)
 
 int calculate_seed(int challenge, int seed)
 {
-    char data[2000000000];
+    char data[SHA_DIGEST_LENGTH];
     sprintf(data, "%d", seed);
     size_t length = strlen(data);
     unsigned char hash[SHA_DIGEST_LENGTH];
